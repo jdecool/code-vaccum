@@ -13,6 +13,7 @@ const (
 
 type Output interface {
 	Handle(r provider.Repository)
+	Flush()
 }
 
 type OutputOptions struct {

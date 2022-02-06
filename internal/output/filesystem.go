@@ -30,3 +30,6 @@ func (o filesystemOutputFormatter) Handle(r provider.Repository) {
 		URL: r.CloneURL,
 	})
 }
+
+func (o filesystemOutputFormatter) Flush() {
+}

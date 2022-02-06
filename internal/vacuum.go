@@ -28,6 +28,8 @@ func Handle(p provider.Provider, o output.Output, orgsFilter []string) error {
 		}
 	}
 
+	o.Flush()
+
 	return errorList
 }
 
