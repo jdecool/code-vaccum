@@ -12,6 +12,7 @@ const (
 )
 
 type Provider interface {
+	GetName() string
 	GetOrganizations(filter []string) ([]string, error)
 	GetOrganizationRepositories(org string) ([]Repository, error)
 }
@@ -23,6 +24,7 @@ type ProviderOptions struct {
 }
 
 type Repository struct {
+	Provider      Provider
 	Owner         string
 	Name          string
 	CloneURL      string

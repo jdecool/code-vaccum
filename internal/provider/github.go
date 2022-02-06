@@ -56,6 +56,10 @@ func createHttpClient(options ProviderOptions) *http.Client {
 	return oauth2.NewClient(options.Context, tokenSource)
 }
 
+func (p githubProvider) GetName() string {
+	return PROVIDER_GITHUB
+}
+
 func (p githubProvider) GetOrganizations(filter []string) ([]string, error) {
 	if len(filter) == 0 {
 		return p.getAllOrganizations()
@@ -86,6 +90,7 @@ func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	var r []Repository
 	for _, repo := range repos {
 		r = append(r, Repository{
+			Provider:      p,
 			Owner:         *repo.Owner.Login,
 			Name:          *repo.Name,
 			CloneURL:      *repo.CloneURL,

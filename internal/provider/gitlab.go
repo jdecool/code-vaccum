@@ -29,6 +29,10 @@ func createGitlabClient(options ProviderOptions) (*gitlab.Client, error) {
 	return gitlab.NewClient(options.AccessToken, gitlab.WithBaseURL(options.EndpointUrl))
 }
 
+func (p gitlabProvider) GetName() string {
+	return PROVIDER_GITLAB
+}
+
 func (p gitlabProvider) GetOrganizations(filter []string) ([]string, error) {
 	if len(filter) == 0 {
 		return p.getAllOrganizations()
@@ -59,6 +63,7 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	var r []Repository
 	for _, repo := range repos {
 		r = append(r, Repository{
+			Provider:      p,
 			Owner:         org,
 			Name:          repo.Name,
 			CloneURL:      repo.HTTPURLToRepo,
