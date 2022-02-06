@@ -12,5 +12,6 @@ func newNilOutput() (*nilOutputFormatter, error) {
 func (o nilOutputFormatter) Handle(r provider.Repository) {
 }
 
-func (o nilOutputFormatter) Flush() {
+func (o nilOutputFormatter) Flush() error {
+	return nil
 }

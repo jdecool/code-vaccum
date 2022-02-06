@@ -9,11 +9,12 @@ import (
 const (
 	OUTPUT_FILESYSTEM = "filesystem"
 	OUTPUT_NIL        = "nil"
+	OUTPUT_REPO       = "repo"
 )
 
 type Output interface {
 	Handle(r provider.Repository)
-	Flush()
+	Flush() error
 }
 
 type OutputOptions struct {
@@ -28,6 +29,8 @@ func NewOutput(format string, options OutputOptions) (Output, error) {
 		})
 	case OUTPUT_NIL:
 		return newNilOutput()
+	case OUTPUT_REPO:
+		return newRepoOutput()
 	default:
 		return nil, errors.New("Unknown output format.")
 	}

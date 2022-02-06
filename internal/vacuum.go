@@ -23,7 +23,6 @@ func Handle(p provider.Provider, o output.Output, orgsFilter []string) error {
 		}
 
 		for _, repo := range repos {
-			fmt.Println(repo)
 			o.Handle(repo)
 		}
 	}

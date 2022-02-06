@@ -31,5 +31,6 @@ func (o filesystemOutputFormatter) Handle(r provider.Repository) {
 	})
 }
 
-func (o filesystemOutputFormatter) Flush() {
+func (o filesystemOutputFormatter) Flush() error {
+	return nil
 }

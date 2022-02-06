@@ -6,7 +6,7 @@ Scrap code from coding platform.
 ## Usage
 
 ```bash
-  $ ./vaccum --provider [github|gitlab] --output [filesystem|nil] [--org org-name]
+  $ ./vaccum --provider [github|gitlab] --output [filesystem|nil|repo] [--org org-name]
 ```
 
 ## Options

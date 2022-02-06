@@ -92,6 +92,7 @@ func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, e
 		r = append(r, Repository{
 			Provider:      p,
 			Owner:         *repo.Owner.Login,
+			OwnerUrl:      *repo.Owner.HTMLURL,
 			Name:          *repo.Name,
 			CloneURL:      *repo.CloneURL,
 			DefaultBranch: *repo.DefaultBranch,
