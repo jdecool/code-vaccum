@@ -55,36 +55,66 @@ func (p gitlabProvider) GetOrganizations(filter []string) ([]string, error) {
 }
 
 func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, error) {
-	repos, _, err := p.client.Groups.ListGroupProjects(org, nil)
-	if err != nil {
-		return []Repository{}, err
+	var r []Repository
+	var errorList error
+
+	opt := &gitlab.ListGroupProjectsOptions{
+		ListOptions: gitlab.ListOptions{PerPage: 100},
 	}
 
-	var r []Repository
-	for _, repo := range repos {
-		r = append(r, Repository{
-			Provider:      p,
-			Owner:         org,
-			OwnerUrl:      repo.WebURL[0:strings.LastIndex(repo.WebURL, "/")],
-			Name:          repo.Name,
-			CloneURL:      repo.HTTPURLToRepo,
-			DefaultBranch: repo.DefaultBranch,
-		})
+	for {
+		repos, resp, err := p.client.Groups.ListGroupProjects(org, nil)
+		if err != nil {
+			errorList = appendError(errorList, err)
+			continue
+		}
+
+		for _, repo := range repos {
+			r = append(r, Repository{
+				Provider:      p,
+				Owner:         org,
+				OwnerUrl:      repo.WebURL[0:strings.LastIndex(repo.WebURL, "/")],
+				Name:          repo.Name,
+				CloneURL:      repo.HTTPURLToRepo,
+				DefaultBranch: repo.DefaultBranch,
+			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opt.Page = resp.NextPage
 	}
 
 	return r, nil
 }
 
 func (p gitlabProvider) getAllOrganizations() ([]string, error) {
-	groups, _, err := p.client.Groups.ListGroups(nil)
-	if err != nil {
-		return []string{}, err
-	}
-
+	var errorList error
 	r := []string{}
-	for _, g := range groups {
-		r = append(r, g.Name)
+
+	opt := &gitlab.ListGroupsOptions{
+		ListOptions: gitlab.ListOptions{PerPage: 100},
 	}
 
-	return r, nil
+	for {
+		groups, resp, err := p.client.Groups.ListGroups(nil)
+		if err != nil {
+			errorList = appendError(errorList, err)
+			continue
+		}
+
+		for _, g := range groups {
+			r = append(r, g.Name)
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opt.Page = resp.NextPage
+	}
+
+	return r, errorList
 }
