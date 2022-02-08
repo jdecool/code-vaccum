@@ -82,35 +82,66 @@ func (p githubProvider) GetOrganizations(filter []string) ([]string, error) {
 }
 
 func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, error) {
-	repos, _, err := p.client.Repositories.ListByOrg(p.ctx, org, nil)
-	if err != nil {
-		return []Repository{}, err
-	}
-
 	var r []Repository
-	for _, repo := range repos {
-		r = append(r, Repository{
-			Provider:      p,
-			Owner:         *repo.Owner.Login,
-			OwnerUrl:      *repo.Owner.HTMLURL,
-			Name:          *repo.Name,
-			CloneURL:      *repo.CloneURL,
-			DefaultBranch: *repo.DefaultBranch,
-		})
+	var errorList error
+
+	opt := &github.RepositoryListByOrgOptions{
+		ListOptions: github.ListOptions{PerPage: 100},
 	}
 
-	return r, nil
+	for {
+		repos, resp, err := p.client.Repositories.ListByOrg(p.ctx, org, nil)
+		if err != nil {
+			errorList = appendError(errorList, err)
+			continue
+		}
+
+		for _, repo := range repos {
+			r = append(r, Repository{
+				Provider:      p,
+				Owner:         *repo.Owner.Login,
+				OwnerUrl:      *repo.Owner.HTMLURL,
+				Name:          *repo.Name,
+				CloneURL:      *repo.CloneURL,
+				DefaultBranch: *repo.DefaultBranch,
+			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opt.Page = resp.NextPage
+	}
+
+	return r, errorList
 }
 
 func (p githubProvider) getAllOrganizations() ([]string, error) {
-	orgs, _, err := p.client.Organizations.ListAll(p.ctx, nil)
-	if err != nil {
-		return []string{}, err
+	var errorList error
+	r := []string{}
+
+	opt := &github.OrganizationsListOptions{
+		ListOptions: github.ListOptions{PerPage: 100},
 	}
 
-	r := []string{}
-	for _, o := range orgs {
-		r = append(r, *o.Login)
+	for {
+		orgs, resp, err := p.client.Organizations.ListAll(p.ctx, opt)
+		if err != nil {
+			errorList = appendError(errorList, err)
+			continue
+		}
+
+		for _, o := range orgs {
+			r = append(r, *o.Login)
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opt.Page = resp.NextPage
+
 	}
 
 	return r, nil
