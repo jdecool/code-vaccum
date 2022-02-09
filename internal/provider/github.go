@@ -69,9 +69,13 @@ func (p githubProvider) GetOrganizations(filter []string) ([]string, error) {
 
 	r := []string{}
 	for _, org := range filter {
-		o, _, err := p.client.Organizations.Get(p.ctx, org)
+		o, resp, err := p.client.Organizations.Get(p.ctx, org)
 		if err != nil {
 			errorList = appendError(errorList, err)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				break
+			}
+
 			continue
 		}
 
@@ -93,6 +97,10 @@ func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, e
 		repos, resp, err := p.client.Repositories.ListByOrg(p.ctx, org, nil)
 		if err != nil {
 			errorList = appendError(errorList, err)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				break
+			}
+
 			continue
 		}
 
@@ -129,6 +137,10 @@ func (p githubProvider) getAllOrganizations() ([]string, error) {
 		orgs, resp, err := p.client.Organizations.ListAll(p.ctx, opt)
 		if err != nil {
 			errorList = appendError(errorList, err)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				break
+			}
+
 			continue
 		}
 

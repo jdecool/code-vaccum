@@ -42,9 +42,13 @@ func (p gitlabProvider) GetOrganizations(filter []string) ([]string, error) {
 
 	r := []string{}
 	for _, org := range filter {
-		g, _, err := p.client.Groups.GetGroup(org, nil)
+		g, resp, err := p.client.Groups.GetGroup(org, nil)
 		if err != nil {
 			errorList = appendError(errorList, err)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				break
+			}
+
 			continue
 		}
 
@@ -66,6 +70,10 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 		repos, resp, err := p.client.Groups.ListGroupProjects(org, nil)
 		if err != nil {
 			errorList = appendError(errorList, err)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				break
+			}
+
 			continue
 		}
 
@@ -102,6 +110,10 @@ func (p gitlabProvider) getAllOrganizations() ([]string, error) {
 		groups, resp, err := p.client.Groups.ListGroups(nil)
 		if err != nil {
 			errorList = appendError(errorList, err)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				break
+			}
+
 			continue
 		}
 
