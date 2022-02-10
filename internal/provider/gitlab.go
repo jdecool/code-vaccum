@@ -3,6 +3,7 @@ package provider
 import (
 	"strings"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -63,10 +64,15 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	var errorList error
 
 	opt := &gitlab.ListGroupProjectsOptions{
-		ListOptions: gitlab.ListOptions{PerPage: 100},
+		ListOptions: gitlab.ListOptions{
+			Page:    1,
+			PerPage: 100,
+		},
 	}
 
 	for {
+		log.Debugf("Processing page %d", opt.Page)
+
 		repos, resp, err := p.client.Groups.ListGroupProjects(org, nil)
 		if err != nil {
 			errorList = appendError(errorList, err)

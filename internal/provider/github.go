@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
@@ -90,10 +91,15 @@ func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	var errorList error
 
 	opt := &github.RepositoryListByOrgOptions{
-		ListOptions: github.ListOptions{PerPage: 100},
+		ListOptions: github.ListOptions{
+			Page:    1,
+			PerPage: 100,
+		},
 	}
 
 	for {
+		log.Debugf("Processing page %d", opt.Page)
+
 		repos, resp, err := p.client.Repositories.ListByOrg(p.ctx, org, nil)
 		if err != nil {
 			errorList = appendError(errorList, err)

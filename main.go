@@ -7,6 +7,7 @@ import (
 	vacuum "github.com/jdecool/github-vacuum/internal"
 	"github.com/jdecool/github-vacuum/internal/output"
 	"github.com/jdecool/github-vacuum/internal/provider"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -17,6 +18,7 @@ func main() {
 		outputFormat        string
 		outputFolder        string
 		orgsFilter          = []string{}
+		debug               bool
 	)
 
 	appendOrg := func(org string) error {
@@ -29,8 +31,18 @@ func main() {
 	flag.StringVar(&providerAccessToken, "provider-access-token", "", "")
 	flag.StringVar(&outputFormat, "output", output.OUTPUT_FILESYSTEM, "")
 	flag.StringVar(&outputFolder, "output-folder", "", "")
+	flag.BoolVar(&debug, "debug", false, "")
 	flag.Func("org", "", appendOrg)
 	flag.Parse()
+
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors: true,
+		FullTimestamp: true,
+	})
+	log.SetLevel(log.ErrorLevel)
+	if debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	provider, err := provider.NewProvider(providerType, provider.ProviderOptions{
 		Context:     context.Background(),

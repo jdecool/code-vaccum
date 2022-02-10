@@ -49,6 +49,10 @@ func NewProvider(pType string, options ProviderOptions) (Provider, error) {
 	}
 }
 
+func (r Repository) Fullname() string {
+	return r.Owner + "/" + r.Name
+}
+
 func appendError(errorList error, err error) error {
 	if errorList == nil {
 		return errors.New(err.Error())
