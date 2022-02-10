@@ -9,16 +9,16 @@ import (
 	"github.com/jdecool/github-vacuum/internal/provider"
 )
 
-var (
-	providerType        string
-	providerEndpoint    string
-	providerAccessToken string
-	outputFormat        string
-	outputFolder        string
-	orgsFilter          = []string{}
-)
-
 func main() {
+	var (
+		providerType        string
+		providerEndpoint    string
+		providerAccessToken string
+		outputFormat        string
+		outputFolder        string
+		orgsFilter          = []string{}
+	)
+
 	appendOrg := func(org string) error {
 		orgsFilter = append(orgsFilter, org)
 		return nil
