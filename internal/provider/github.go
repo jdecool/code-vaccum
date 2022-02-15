@@ -100,7 +100,7 @@ func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	for {
 		log.Debugf("Processing page %d", opt.Page)
 
-		repos, resp, err := p.client.Repositories.ListByOrg(p.ctx, org, nil)
+		repos, resp, err := p.client.Repositories.ListByOrg(p.ctx, org, opt)
 		if err != nil {
 			errorList = appendError(errorList, err)
 			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
