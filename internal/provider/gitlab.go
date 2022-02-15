@@ -73,7 +73,7 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	for {
 		log.Debugf("Processing page %d", opt.Page)
 
-		repos, resp, err := p.client.Groups.ListGroupProjects(org, nil)
+		repos, resp, err := p.client.Groups.ListGroupProjects(org, opt)
 		if err != nil {
 			errorList = appendError(errorList, err)
 			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
@@ -109,11 +109,14 @@ func (p gitlabProvider) getAllOrganizations() ([]string, error) {
 	r := []string{}
 
 	opt := &gitlab.ListGroupsOptions{
-		ListOptions: gitlab.ListOptions{PerPage: 100},
+		ListOptions: gitlab.ListOptions{
+			Page:    1,
+			PerPage: 100,
+		},
 	}
 
 	for {
-		groups, resp, err := p.client.Groups.ListGroups(nil)
+		groups, resp, err := p.client.Groups.ListGroups(opt)
 		if err != nil {
 			errorList = appendError(errorList, err)
 			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
