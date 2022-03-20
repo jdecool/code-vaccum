@@ -80,7 +80,7 @@ func (p githubProvider) GetOrganizations(filter []string) ([]string, error) {
 			continue
 		}
 
-		r = append(r, *o.Name)
+		r = append(r, *o.Login)
 	}
 
 	return r, errorList
