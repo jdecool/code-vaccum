@@ -12,7 +12,7 @@ type gitlabProvider struct {
 }
 
 func newGitlabProviderClient(options ProviderOptions) (*gitlabProvider, error) {
-	c, err := gitlab.NewClient(options.AccessToken)
+	c, err := createGitlabClient(options)
 	if err != nil {
 		return nil, err
 	}
