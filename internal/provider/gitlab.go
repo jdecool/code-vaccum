@@ -90,6 +90,7 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 				OwnerUrl:      repo.WebURL[0:strings.LastIndex(repo.WebURL, "/")],
 				Name:          repo.Name,
 				CloneURL:      repo.HTTPURLToRepo,
+				SSHUrl:        repo.SSHURLToRepo,
 				DefaultBranch: repo.DefaultBranch,
 			})
 		}
@@ -101,7 +102,7 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 		opt.Page = resp.NextPage
 	}
 
-	return r, nil
+	return r, errorList
 }
 
 func (p gitlabProvider) getAllOrganizations() ([]string, error) {

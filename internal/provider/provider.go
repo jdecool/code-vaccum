@@ -29,6 +29,7 @@ type Repository struct {
 	OwnerUrl      string
 	Name          string
 	CloneURL      string
+	SSHUrl        string
 	DefaultBranch string
 }
 
