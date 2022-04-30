@@ -44,7 +44,7 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	provider, err := provider.NewProvider(providerType, provider.ProviderOptions{
+	p, err := provider.NewProvider(providerType, provider.ProviderOptions{
 		Context:     context.Background(),
 		EndpointUrl: providerEndpoint,
 		AccessToken: providerAccessToken,
@@ -53,14 +53,14 @@ func main() {
 		panic(err)
 	}
 
-	output, err := output.NewOutput(outputFormat, output.OutputOptions{
+	o, err := output.NewOutput(outputFormat, output.OutputOptions{
 		Folder: outputFolder,
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	err = vacuum.Handle(provider, output, orgsFilter)
+	err = vacuum.Handle(p, o, orgsFilter)
 	if err != nil {
 		panic(err)
 	}
