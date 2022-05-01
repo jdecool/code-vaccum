@@ -28,7 +28,7 @@ func Handle(p provider.Provider, o output.Output, orgsFilter []string) error {
 
 		if err != nil {
 			log.Debug(err.Error())
-			appendError(errorList, err)
+			errorList = appendError(errorList, err)
 		}
 
 		for _, repo := range repos {
@@ -37,7 +37,10 @@ func Handle(p provider.Provider, o output.Output, orgsFilter []string) error {
 		}
 	}
 
-	o.Flush()
+	if err = o.Flush(); err != nil {
+		log.Debug(err.Error())
+		errorList = appendError(errorList, err)
+	}
 
 	return errorList
 }
