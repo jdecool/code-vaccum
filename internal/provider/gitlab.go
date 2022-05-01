@@ -63,7 +63,9 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	var r []Repository
 	var errorList error
 
+	includeSubGroups := true
 	opt := &gitlab.ListGroupProjectsOptions{
+		IncludeSubgroups: &includeSubGroups,
 		ListOptions: gitlab.ListOptions{
 			Page:    1,
 			PerPage: 100,
