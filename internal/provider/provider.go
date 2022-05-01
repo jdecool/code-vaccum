@@ -26,7 +26,7 @@ type ProviderOptions struct {
 type Repository struct {
 	Provider      Provider
 	Owner         string
-	OwnerUrl      string
+	Path          string
 	Name          string
 	CloneURL      string
 	SSHUrl        string

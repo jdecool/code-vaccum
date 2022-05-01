@@ -87,7 +87,7 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 			r = append(r, Repository{
 				Provider:      p,
 				Owner:         org,
-				OwnerUrl:      repo.WebURL[0:strings.LastIndex(repo.WebURL, "/")],
+				Path:          repo.PathWithNamespace,
 				Name:          repo.Name,
 				CloneURL:      repo.HTTPURLToRepo,
 				SSHUrl:        repo.SSHURLToRepo,
