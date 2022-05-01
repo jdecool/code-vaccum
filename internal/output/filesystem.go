@@ -27,10 +27,18 @@ func (o filesystemOutputFormatter) Handle(r provider.Repository) {
 	path += r.Owner + "/" + r.Name
 
 	git.PlainClone(path, false, &git.CloneOptions{
-		URL: r.CloneURL,
+		URL: getCloneUrl(r),
 	})
 }
 
 func (o filesystemOutputFormatter) Flush() error {
 	return nil
+}
+
+func getCloneUrl(r provider.Repository) string {
+	if strings.TrimSpace(r.SSHUrl) != "" {
+		return r.SSHUrl
+	}
+
+	return r.CloneURL
 }
