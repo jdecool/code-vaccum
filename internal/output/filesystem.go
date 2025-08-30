@@ -91,7 +91,6 @@ func (o filesystemOutputFormatter) createSSHAuth() (transport.AuthMethod, error)
 		return nil, fmt.Errorf("failed to create SSH auth from key %s: %w", o.opts.SSHKeyPath, err)
 	}
 
-	// Disable host key verification for simplicity (similar to ssh -o StrictHostKeyChecking=no)
 	auth.HostKeyCallback = gossh.InsecureIgnoreHostKey()
 
 	return auth, nil

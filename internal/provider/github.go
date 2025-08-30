@@ -91,6 +91,7 @@ func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	var errorList error
 
 	opt := &github.RepositoryListByOrgOptions{
+		Type: "all",
 		ListOptions: github.ListOptions{
 			Page:    1,
 			PerPage: 100,
@@ -137,6 +138,7 @@ func (p githubProvider) GetUserRepositories(username string) ([]Repository, erro
 	var errorList error
 
 	opt := &github.RepositoryListOptions{
+		Type: "all",
 		ListOptions: github.ListOptions{
 			Page:    1,
 			PerPage: 100,
