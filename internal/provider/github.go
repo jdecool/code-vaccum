@@ -99,12 +99,12 @@ func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	}
 
 	for {
-		log.Debugf("Processing page %d", opt.Page)
+		log.Debugf("Processing page %d for org %s", opt.Page, org)
 
 		repos, resp, err := p.client.Repositories.ListByOrg(p.ctx, org, opt)
 		if err != nil {
 			errorList = appendError(errorList, err)
-			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+			if resp != nil && resp.StatusCode >= 400 && resp.StatusCode < 500 {
 				break
 			}
 
@@ -137,6 +137,8 @@ func (p githubProvider) GetUserRepositories(username string) ([]Repository, erro
 	var r []Repository
 	var errorList error
 
+	hasAuth := p.client != nil
+
 	opt := &github.RepositoryListOptions{
 		Type: "all",
 		ListOptions: github.ListOptions{
@@ -145,13 +147,22 @@ func (p githubProvider) GetUserRepositories(username string) ([]Repository, erro
 		},
 	}
 
+	if hasAuth {
+		user, _, err := p.client.Users.Get(p.ctx, "")
+		if err == nil && user.Login != nil && *user.Login == username {
+			opt.Visibility = "all"
+			opt.Affiliation = "owner,collaborator"
+			log.Debugf("Authenticated user requesting own repos - including private repositories")
+		}
+	}
+
 	for {
 		log.Debugf("Processing page %d for user %s", opt.Page, username)
 
 		repos, resp, err := p.client.Repositories.List(p.ctx, username, opt)
 		if err != nil {
 			errorList = appendError(errorList, err)
-			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+			if resp != nil && resp.StatusCode >= 400 && resp.StatusCode < 500 {
 				break
 			}
 
