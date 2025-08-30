@@ -18,14 +18,16 @@ type Output interface {
 }
 
 type OutputOptions struct {
-	Folder string
+	Folder     string
+	SSHKeyPath string
 }
 
 func NewOutput(format string, options OutputOptions) (Output, error) {
 	switch format {
 	case OUTPUT_FILESYSTEM:
 		return newFilesystemOutput(FilesystemOptions{
-			Folder: options.Folder,
+			Folder:     options.Folder,
+			SSHKeyPath: options.SSHKeyPath,
 		})
 	case OUTPUT_NIL:
 		return newNilOutput()

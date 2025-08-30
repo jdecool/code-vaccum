@@ -132,6 +132,52 @@ func (p githubProvider) GetOrganizationRepositories(org string) ([]Repository, e
 	return r, errorList
 }
 
+func (p githubProvider) GetUserRepositories(username string) ([]Repository, error) {
+	var r []Repository
+	var errorList error
+
+	opt := &github.RepositoryListOptions{
+		ListOptions: github.ListOptions{
+			Page:    1,
+			PerPage: 100,
+		},
+	}
+
+	for {
+		log.Debugf("Processing page %d for user %s", opt.Page, username)
+
+		repos, resp, err := p.client.Repositories.List(p.ctx, username, opt)
+		if err != nil {
+			errorList = appendError(errorList, err)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				break
+			}
+
+			continue
+		}
+
+		for _, repo := range repos {
+			r = append(r, Repository{
+				Provider:      p,
+				Owner:         *repo.Owner.Login,
+				Path:          *repo.FullName,
+				Name:          *repo.Name,
+				CloneURL:      *repo.CloneURL,
+				SSHUrl:        *repo.SSHURL,
+				DefaultBranch: *repo.DefaultBranch,
+			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opt.Page = resp.NextPage
+	}
+
+	return r, errorList
+}
+
 func (p githubProvider) getAllOrganizations() ([]string, error) {
 	var errorList error
 	r := []string{}

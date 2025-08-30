@@ -17,12 +17,20 @@ func main() {
 		providerAccessToken string
 		outputFormat        string
 		outputFolder        string
+		sshKeyPath          string
 		orgsFilter          = []string{}
+		usernamesFilter     = []string{}
 		debug               bool
+		quiet               bool
 	)
 
 	appendOrg := func(org string) error {
 		orgsFilter = append(orgsFilter, org)
+		return nil
+	}
+
+	appendUsername := func(username string) error {
+		usernamesFilter = append(usernamesFilter, username)
 		return nil
 	}
 
@@ -31,17 +39,24 @@ func main() {
 	flag.StringVar(&providerAccessToken, "provider-access-token", "", "")
 	flag.StringVar(&outputFormat, "output", output.OUTPUT_FILESYSTEM, "")
 	flag.StringVar(&outputFolder, "output-folder", "", "")
+	flag.StringVar(&sshKeyPath, "ssh-key", "", "")
 	flag.BoolVar(&debug, "debug", false, "")
+	flag.BoolVar(&quiet, "quiet", false, "")
 	flag.Func("org", "", appendOrg)
+	flag.Func("username", "", appendUsername)
 	flag.Parse()
 
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors: true,
 		FullTimestamp: true,
 	})
-	log.SetLevel(log.ErrorLevel)
+
 	if debug {
 		log.SetLevel(log.DebugLevel)
+	} else if quiet {
+		log.SetLevel(log.WarnLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
 	}
 
 	p, err := provider.NewProvider(providerType, provider.ProviderOptions{
@@ -54,13 +69,14 @@ func main() {
 	}
 
 	o, err := output.NewOutput(outputFormat, output.OutputOptions{
-		Folder: outputFolder,
+		Folder:     outputFolder,
+		SSHKeyPath: sshKeyPath,
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	err = vacuum.Handle(p, o, orgsFilter)
+	err = vacuum.Handle(p, o, orgsFilter, usernamesFilter)
 	if err != nil {
 		panic(err)
 	}

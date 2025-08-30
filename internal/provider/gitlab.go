@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"fmt"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -89,6 +90,65 @@ func (p gitlabProvider) GetOrganizationRepositories(org string) ([]Repository, e
 			r = append(r, Repository{
 				Provider:      p,
 				Owner:         org,
+				Path:          repo.PathWithNamespace,
+				Name:          repo.Name,
+				CloneURL:      repo.HTTPURLToRepo,
+				SSHUrl:        repo.SSHURLToRepo,
+				DefaultBranch: repo.DefaultBranch,
+			})
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opt.Page = resp.NextPage
+	}
+
+	return r, errorList
+}
+
+func (p gitlabProvider) GetUserRepositories(username string) ([]Repository, error) {
+	var r []Repository
+	var errorList error
+
+	users, resp, err := p.client.Users.ListUsers(&gitlab.ListUsersOptions{
+		Username: &username,
+	})
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode >= 400 || len(users) == 0 {
+		return nil, fmt.Errorf("user %s not found", username)
+	}
+
+	user := users[0]
+
+	opt := &gitlab.ListProjectsOptions{
+		ListOptions: gitlab.ListOptions{
+			Page:    1,
+			PerPage: 100,
+		},
+		Owned: gitlab.Bool(true),
+	}
+
+	for {
+		log.Debugf("Processing page %d for user %s", opt.Page, username)
+
+		repos, resp, err := p.client.Projects.ListUserProjects(user.ID, opt)
+		if err != nil {
+			errorList = appendError(errorList, err)
+			if resp.StatusCode >= 400 && resp.StatusCode < 500 {
+				break
+			}
+
+			continue
+		}
+
+		for _, repo := range repos {
+			r = append(r, Repository{
+				Provider:      p,
+				Owner:         username,
 				Path:          repo.PathWithNamespace,
 				Name:          repo.Name,
 				CloneURL:      repo.HTTPURLToRepo,
